@@ -50,3 +50,7 @@ bin/
 *.rar
 
 hs_err_pid*
+
+.idea/
+*.iml
+
