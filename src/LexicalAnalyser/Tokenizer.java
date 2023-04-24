@@ -1,7 +1,10 @@
+package LexicalAnalyser;
+
+import LexicalAnalyser.Token;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class Tokenizer {
     private final String input;

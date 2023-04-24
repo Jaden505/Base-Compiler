@@ -1,3 +1,9 @@
+import LexicalAnalyser.Token;
+import LexicalAnalyser.Tokenizer;
+import LexicalAnalyser.TokenizerException;
+import com.sun.source.tree.BinaryTree;
+
+import java.util.List;
 import java.util.Scanner;
 
 public class MainCompiler {
@@ -6,6 +12,6 @@ public class MainCompiler {
         String input = scanner.nextLine();
 
         Tokenizer tokenizer = new Tokenizer(input);
-        System.out.println(tokenizer.tokenize().toString());
+        List<Token> tokens = tokenizer.tokenize();
     }
 }
