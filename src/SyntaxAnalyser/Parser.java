@@ -19,7 +19,7 @@ public class Parser {
     }
 
     public void parseProgram() throws SyntaxException {
-        for (this.position=0; position < tokens.size(); position++) {
+        for (this.position=0; position < tokens.size()-1; position++) {
             this.currentToken = tokens.get(position);
             parseStatement();
         }
@@ -28,8 +28,10 @@ public class Parser {
     private void parseStatement() throws SyntaxException {
         if (currentToken.getType() == TokenType.LET) {
             parseVariable();
+            System.out.println("Variable declaration parsed");
         } else if (currentToken.getType() == TokenType.SHOW) {
             parseShow();
+            System.out.println("Show statement parsed");
         }
         else {
             throw new SyntaxException("Invalid statement: Must begin with a variable declaration or show");
@@ -37,31 +39,50 @@ public class Parser {
     }
 
 
-    private void parseShow() {
+    private void parseShow() throws SyntaxException {
+        advance();
+        int original_pos = position;
+
+        if (!parseExpression()) {
+            this.position = original_pos;
+            this.currentToken = tokens.get(position);
+        } else if (!parseTerm()) {
+            this.position = original_pos;
+            this.currentToken = tokens.get(position);
+        } else if (!parseFactor()) {
+            this.position = original_pos;
+            this.currentToken = tokens.get(position);
+        } else {
+            throw new SyntaxException("Invalid statement");
+        }
 
     }
 
-    private void parseExpression() throws SyntaxException {
+    private boolean parseExpression() throws SyntaxException {
         parseTerm();
         if (currentToken.getType() == TokenType.PLUS || currentToken.getType() == TokenType.MINUS) {
             advance();
         } else {
-            throw new SyntaxException("Invalid definition of variable/show expression can only add or remove terms");
+            return false;
         }
         parseTerm();
+
+        return true;
     }
 
-    private void parseTerm() throws SyntaxException {
+    private boolean parseTerm() throws SyntaxException {
         parseFactor();
         if (currentToken.getType() == TokenType.MULTIPLY || currentToken.getType() == TokenType.DIVIDE) {
             advance();
         } else {
-            throw new SyntaxException("Invalid definition of variable/show can only multiply or divide factors");
+            return false;
         }
         parseFactor();
+
+        return true;
     }
 
-    private void parseFactor() throws SyntaxException {
+    private boolean parseFactor() throws SyntaxException {
         if (currentToken.getType() == TokenType.NUMBER || currentToken.getType() == TokenType.LET) {
             advance();
         } else if (currentToken.getType() == TokenType.MINUS && tokens.get(position+1).getType() == TokenType.NUMBER) {
@@ -72,11 +93,12 @@ public class Parser {
             if (currentToken.getType() == TokenType.RIGHT_PARENTHESIS) {
                 advance();
             } else {
-                throw new SyntaxException("Invalid definition of variable/show missing right parenthesis");
+                return false;
             }
         } else {
-            throw new SyntaxException("Invalid definition of variable/show can only be a number or expression");
+            return false;
         }
+        return true;
     }
 
     private void parseVariable() throws SyntaxException {
@@ -94,7 +116,7 @@ public class Parser {
             equals_opr.addChild(new SyntaxTreeNode(currentToken));
 
             advance(); advance();
-            parseExpression();
+            parseShow();
         } else {
             throw new SyntaxException("Invalid variable");
         }

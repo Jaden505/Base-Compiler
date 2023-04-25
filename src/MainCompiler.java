@@ -9,8 +9,10 @@ import java.util.Scanner;
 
 public class MainCompiler {
     public static void main(String[] args) throws TokenizerException, SyntaxException {
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
+//        Scanner scanner = new Scanner(System.in);
+//        String input = scanner.nextLine();
+        String input = "show (5*5)/2 \n a = 5\n show a * 2";
+        System.out.println(input);
 
         Tokenizer tokenizer = new Tokenizer(input);
         List<Token> tokens = tokenizer.tokenize();

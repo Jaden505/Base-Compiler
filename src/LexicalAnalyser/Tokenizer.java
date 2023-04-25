@@ -16,12 +16,15 @@ public class Tokenizer {
 
     private String getNextToken() {
         StringBuilder token = new StringBuilder();
-        boolean isLetter = Character.isLetter(current_char);
 
-        while (!white_spaces.contains(current_char)) {
+        while (Character.isLetterOrDigit(current_char)) {
             token.append(current_char);
-            if (isEndOfCode() || Character.isLetter(current_char) != isLetter) {break;}
-            advance();
+            if (isEndOfCode()) {
+                this.position++;
+                break;
+            } else {
+                advance();
+            }
         }
 
         return token.toString();
@@ -47,6 +50,7 @@ public class Tokenizer {
 
         while (position < this.input.length()) {
             current_char = this.input.charAt(position);
+            System.out.println(position);
 
             if (white_spaces.contains(current_char)) { // White spaces
                 skipWhiteSpaces();
@@ -85,7 +89,6 @@ public class Tokenizer {
                 throw new TokenizerException("Syntax error: couldn't tokenize character '" + current_char + "'");
             }
 
-            this.position++;
         }
 
         return tokens;
