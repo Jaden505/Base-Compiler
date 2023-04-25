@@ -1,7 +1,5 @@
 package LexicalAnalyser;
 
-import LexicalAnalyser.Token;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +77,7 @@ public class Tokenizer {
                 if (token_str.equals("show")) { // SHOW
                     tokens.add(new Token(Token.TokenType.SHOW));
                 } else { // VAR
-                    tokens.add(new Token(Token.TokenType.VARIABLE, token_str));
+                    tokens.add(new Token(Token.TokenType.LET, token_str));
                 }
             } else {
                 throw new TokenizerException("Syntax error: couldn't tokenize character '" + current_char + "'");

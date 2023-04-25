@@ -1,11 +1,11 @@
 package LexicalAnalyser;
 
 public class Token {
-    enum TokenType {
+    public enum TokenType {
         NUMBER,
         EQUALS_OPERATOR,
         SHOW,
-        VARIABLE,
+        LET,
         PLUS,
         MINUS,
         MULTIPLY,

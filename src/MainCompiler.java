@@ -1,7 +1,6 @@
 import LexicalAnalyser.Token;
 import LexicalAnalyser.Tokenizer;
 import LexicalAnalyser.TokenizerException;
-import com.sun.source.tree.BinaryTree;
 
 import java.util.List;
 import java.util.Scanner;

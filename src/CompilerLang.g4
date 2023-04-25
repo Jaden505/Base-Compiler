@@ -4,8 +4,8 @@ program : statement+;
 
 statement : let | show ;
 
-let : VAR '=' INT ;
-show : 'show' (INT | VAR) ;
+let : VAR '=' (INT | expression) ;
+show : 'show' (expression | INT | VAR) ;
 
 PLUS : '+';
 MINUS : '-';
@@ -23,3 +23,10 @@ term : factor ((MULTIPLY|DIVIDE) factor)* ;
 factor : INT | VAR | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS ;
 
 start : expression ;
+
+
+// Example of possible input:
+// show 1+2*3
+// show 1+2*(3+4)/5+6*(7+8)
+// a = 1+2*(3+4)/5+6*(7+8)
+// show a
