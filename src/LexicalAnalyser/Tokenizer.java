@@ -16,9 +16,11 @@ public class Tokenizer {
 
     private String getNextToken() {
         StringBuilder token = new StringBuilder();
+        boolean isLetter = Character.isLetter(current_char);
+
         while (!white_spaces.contains(current_char)) {
             token.append(current_char);
-            if (isEndOfCode()) {break;}
+            if (isEndOfCode() || Character.isLetter(current_char) != isLetter) {break;}
             advance();
         }
 

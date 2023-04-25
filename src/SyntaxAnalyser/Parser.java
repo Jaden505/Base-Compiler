@@ -1,65 +1,90 @@
 package SyntaxAnalyser;
 
 import LexicalAnalyser.Token;
+import LexicalAnalyser.Token.TokenType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Parser {
     private final List<Token> tokens;
-    private SyntaxTreeNode treeRoot;
+    private SyntaxTreeNode treeRoot = null;
     private Token currentToken;
+    private int position;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
-        this.treeRoot = null;
+        this.tokens.add(new Token(TokenType.END_OF_FILE));
     }
 
-    private void parseProgram() throws SyntaxException {
-        for (Token token : tokens) {
-            this.currentToken = token;
+    public void parseProgram() throws SyntaxException {
+        for (this.position=0; position < tokens.size(); position++) {
+            this.currentToken = tokens.get(position);
             parseStatement();
         }
     }
 
     private void parseStatement() throws SyntaxException {
-        if (currentToken.getType() == Token.TokenType.LET) {
+        if (currentToken.getType() == TokenType.LET) {
             parseVariable();
-        } else if (currentToken.getType() == Token.TokenType.SHOW) {
-            parseExpression();
+        } else if (currentToken.getType() == TokenType.SHOW) {
+            parseShow();
         }
         else {
             throw new SyntaxException("Invalid statement: Must begin with a variable declaration or show");
         }
     }
 
-    private void parseExpression() {
-        parseTerm();
-    }
-
-
-    private void parseTerm() {
-
-    }
-
-    private void parseFactor() {
-
-    }
 
     private void parseShow() {
 
     }
 
+    private void parseExpression() throws SyntaxException {
+        parseTerm();
+        if (currentToken.getType() == TokenType.PLUS || currentToken.getType() == TokenType.MINUS) {
+            advance();
+        } else {
+            throw new SyntaxException("Invalid definition of variable/show expression can only add or remove terms");
+        }
+        parseTerm();
+    }
+
+    private void parseTerm() throws SyntaxException {
+        parseFactor();
+        if (currentToken.getType() == TokenType.MULTIPLY || currentToken.getType() == TokenType.DIVIDE) {
+            advance();
+        } else {
+            throw new SyntaxException("Invalid definition of variable/show can only multiply or divide factors");
+        }
+        parseFactor();
+    }
+
+    private void parseFactor() throws SyntaxException {
+        if (currentToken.getType() == TokenType.NUMBER || currentToken.getType() == TokenType.LET) {
+            advance();
+        } else if (currentToken.getType() == TokenType.MINUS && tokens.get(position+1).getType() == TokenType.NUMBER) {
+            advance(); advance();
+        }else if (currentToken.getType() == TokenType.LEFT_PARENTHESIS) {
+            advance();
+            parseExpression();
+            if (currentToken.getType() == TokenType.RIGHT_PARENTHESIS) {
+                advance();
+            } else {
+                throw new SyntaxException("Invalid definition of variable/show missing right parenthesis");
+            }
+        } else {
+            throw new SyntaxException("Invalid definition of variable/show can only be a number or expression");
+        }
+    }
+
     private void parseVariable() throws SyntaxException {
         boolean valid_var_name = Character.isLetter(currentToken.getValue().charAt(0));
         Token next_equals_token = tokens.get(tokens.indexOf(currentToken) + 1);
-        boolean next_equals_opr = next_equals_token.getType() == Token.TokenType.EQUALS_OPERATOR;
-        Token definition = tokens.get(tokens.indexOf(currentToken) + 2);
-        boolean valid_definition = definition.getType() == Token.TokenType.NUMBER ||
-                definition.getType() == Token.TokenType.LEFT_PARENTHESIS ||
-                definition.getType() == Token.TokenType.MINUS;
+        boolean next_equals_opr = next_equals_token.getType() == TokenType.EQUALS_OPERATOR;
 
-        if (valid_var_name && next_equals_opr && valid_definition) {
+        if (valid_var_name && next_equals_opr) {
             SyntaxTreeNode equals_opr = new SyntaxTreeNode(next_equals_token);
             if (treeRoot == null) {
                   this.treeRoot = equals_opr;
@@ -67,9 +92,16 @@ public class Parser {
                   this.treeRoot.addChild(equals_opr);
               }
             equals_opr.addChild(new SyntaxTreeNode(currentToken));
-            equals_opr.addChild(new SyntaxTreeNode(definition));
+
+            advance(); advance();
+            parseExpression();
         } else {
             throw new SyntaxException("Invalid variable");
         }
+    }
+
+    private void advance() {
+        this.position++;
+        this.currentToken = tokens.get(position);
     }
 }

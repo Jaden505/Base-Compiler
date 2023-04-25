@@ -11,7 +11,8 @@ public class Token {
         MULTIPLY,
         DIVIDE,
         LEFT_PARENTHESIS,
-        RIGHT_PARENTHESIS
+        RIGHT_PARENTHESIS,
+        END_OF_FILE
     }
 
     private final TokenType type;
