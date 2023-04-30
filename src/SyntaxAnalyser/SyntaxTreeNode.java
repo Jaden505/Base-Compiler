@@ -36,11 +36,11 @@ public class SyntaxTreeNode {
     }
 
 
-    private SyntaxTreeNode getParent() {
+    public SyntaxTreeNode getParent() {
         return parent;
     }
 
-    private List<SyntaxTreeNode> getChildren() {
+    public List<SyntaxTreeNode> getChildren() {
         return children;
     }
 }

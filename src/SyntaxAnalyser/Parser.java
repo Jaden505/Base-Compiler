@@ -23,11 +23,12 @@ public class Parser {
     }
 
 
-    public void parseProgram() throws SyntaxException {
+    public SyntaxTreeNode parseProgram() throws SyntaxException {
         while (currentToken.getType() != TokenType.END_OF_FILE) {
             parseStatement();
             System.out.println("Statement parsed");
         }
+        return treeRoot;
     }
 
     private void parseStatement() throws SyntaxException {
@@ -112,7 +113,16 @@ public class Parser {
                 this.treeRoot.addChild(number);
             }
             advance();
-        } else if (currentToken.getType() == TokenType.LET) {
+        } else if (currentToken.getType() == TokenType.MINUS) {
+            SyntaxTreeNode operator = new SyntaxTreeNode(currentToken);
+            if (treeRoot == null) {
+                this.treeRoot = operator;
+            } else {
+                this.treeRoot.addChild(operator);
+            }
+            advance();
+            parseFactor();
+        } else if (currentToken.getType() == TokenType.VAR) {
             SyntaxTreeNode variable = new SyntaxTreeNode(currentToken);
             if (treeRoot == null) {
                 this.treeRoot = variable;
@@ -130,5 +140,8 @@ public class Parser {
         } else {
             throw new SyntaxException("Invalid factor");
         }
+    }
+
+    public void showTree() {
     }
 }

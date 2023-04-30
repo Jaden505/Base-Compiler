@@ -54,6 +54,10 @@ public class Tokenizer {
             if (WHITE_SPACES.contains(currentChar)) { // White spaces
                 skipWhiteSpaces();
             }  else if (currentChar == '=') { // 2. LET
+                Token prevToken = tokens.get(tokens.size()-1);
+                if (prevToken.getType() == Token.TokenType.VAR) {
+                    prevToken.setType(Token.TokenType.LET);
+                }
                 tokens.add(new Token(Token.TokenType.EQUALS_OPERATOR));
                 this.position++;
             } else if (currentChar == '+') { // 3. ADD
@@ -82,7 +86,7 @@ public class Tokenizer {
                 if (tokenStr.equals("show")) { // SHOW
                     tokens.add(new Token(Token.TokenType.SHOW));
                 } else { // VAR
-                    tokens.add(new Token(Token.TokenType.LET, tokenStr));
+                    tokens.add(new Token(Token.TokenType.VAR, tokenStr));
                 }
             } else {
                 throw new TokenizerException("Syntax error: couldn't tokenize character '" + currentChar + "'");

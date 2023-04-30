@@ -6,6 +6,7 @@ public class Token {
         EQUALS_OPERATOR,
         SHOW,
         LET,
+        VAR,
         PLUS,
         MINUS,
         MULTIPLY,
@@ -16,7 +17,7 @@ public class Token {
         PROGRAM
     }
 
-    private final TokenType type;
+    private TokenType type;
     private final String value;
 
     public Token(TokenType type) {
@@ -35,6 +36,10 @@ public class Token {
 
     public String getValue() {
         return value;
+    }
+
+    public void setType(TokenType type) {
+        this.type = type;
     }
 
     @Override
