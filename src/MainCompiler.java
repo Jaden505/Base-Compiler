@@ -27,5 +27,6 @@ public class MainCompiler {
 
         SemanticAnalyser semanticAnalyser = new SemanticAnalyser(tokens);
         semanticAnalyser.analyse();
+
     }
 }
