@@ -6,9 +6,9 @@ import java.util.List;
 
 public class Tokenizer {
     private final String input;
-    private Character current_char;
+    private Character currentChar;
     private Integer position = 0;
-    private final List<Character> white_spaces = Arrays.asList(' ', '\r', '\t', '\n');
+    private final List<Character> WHITE_SPACES = Arrays.asList(' ', '\r', '\t', '\n');
 
     public Tokenizer(String input) {
         this.input = input;
@@ -17,8 +17,8 @@ public class Tokenizer {
     private String getNextToken() {
         StringBuilder token = new StringBuilder();
 
-        while (Character.isLetterOrDigit(current_char)) {
-            token.append(current_char);
+        while (Character.isLetterOrDigit(currentChar)) {
+            token.append(currentChar);
             if (isEndOfCode()) {
                 this.position++;
                 break;
@@ -31,14 +31,14 @@ public class Tokenizer {
     }
 
     private void skipWhiteSpaces() {
-        while (white_spaces.contains(current_char)) {
+        while (WHITE_SPACES.contains(currentChar)) {
             advance();
         }
     }
 
     private void advance() {
         this.position++;
-        this.current_char = this.input.charAt(position);
+        this.currentChar = this.input.charAt(position);
     }
 
     private boolean isEndOfCode() {
@@ -49,44 +49,43 @@ public class Tokenizer {
         List<Token> tokens = new ArrayList<>();
 
         while (position < this.input.length()) {
-            current_char = this.input.charAt(position);
-            System.out.println(position);
+            currentChar = this.input.charAt(position);
 
-            if (white_spaces.contains(current_char)) { // White spaces
+            if (WHITE_SPACES.contains(currentChar)) { // White spaces
                 skipWhiteSpaces();
-            }  else if (current_char == '=') { // 2. LET
+            }  else if (currentChar == '=') { // 2. LET
                 tokens.add(new Token(Token.TokenType.EQUALS_OPERATOR));
                 this.position++;
-            } else if (current_char == '+') { // 3. ADD
+            } else if (currentChar == '+') { // 3. ADD
                 tokens.add(new Token(Token.TokenType.PLUS));
                 this.position++;
-            } else if (current_char == '-') { // 4. SUB
+            } else if (currentChar == '-') { // 4. SUB
                 tokens.add(new Token(Token.TokenType.MINUS));
                 this.position++;
-            } else if (current_char == '*') { // 5. MUL
+            } else if (currentChar == '*') { // 5. MUL
                 tokens.add(new Token(Token.TokenType.MULTIPLY));
                 this.position++;
-            } else if (current_char == '/') { // 6. DIV
+            } else if (currentChar == '/') { // 6. DIV
                 tokens.add(new Token(Token.TokenType.DIVIDE));
                 this.position++;
-            } else if (current_char == '(') { // 7. LEFT_PARENTHESIS
+            } else if (currentChar == '(') { // 7. LEFT_PARENTHESIS
                 tokens.add(new Token(Token.TokenType.LEFT_PARENTHESIS));
                 this.position++;
-            } else if (current_char == ')') { // 8. RIGHT_PARENTHESIS
+            } else if (currentChar == ')') { // 8. RIGHT_PARENTHESIS
                 tokens.add(new Token(Token.TokenType.RIGHT_PARENTHESIS));
                 this.position++;
-            } else if (Character.isDigit(current_char)) { // INT
-                String token_str = getNextToken();
-                tokens.add(new Token(Token.TokenType.NUMBER, token_str));
-            } else if (Character.isLetter(current_char)) {
-                String token_str = getNextToken();
-                if (token_str.equals("show")) { // SHOW
+            } else if (Character.isDigit(currentChar)) { // INT
+                String tokenStr = getNextToken();
+                tokens.add(new Token(Token.TokenType.NUMBER, tokenStr));
+            } else if (Character.isLetter(currentChar)) {
+                String tokenStr = getNextToken();
+                if (tokenStr.equals("show")) { // SHOW
                     tokens.add(new Token(Token.TokenType.SHOW));
                 } else { // VAR
-                    tokens.add(new Token(Token.TokenType.LET, token_str));
+                    tokens.add(new Token(Token.TokenType.LET, tokenStr));
                 }
             } else {
-                throw new TokenizerException("Syntax error: couldn't tokenize character '" + current_char + "'");
+                throw new TokenizerException("Syntax error: couldn't tokenize character '" + currentChar + "'");
             }
 
         }

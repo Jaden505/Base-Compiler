@@ -3,25 +3,30 @@ package SyntaxAnalyser;
 import LexicalAnalyser.Token;
 import LexicalAnalyser.Token.TokenType;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Parser {
     private final List<Token> tokens;
     private SyntaxTreeNode treeRoot = null;
     private Token currentToken;
-    private int position;
+    private int position = 0;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
         this.tokens.add(new Token(TokenType.END_OF_FILE));
+        this.currentToken = tokens.get(0);
     }
 
+    private void advance() {
+        this.position++;
+        this.currentToken = tokens.get(position);
+    }
+
+
     public void parseProgram() throws SyntaxException {
-        for (this.position=0; position < tokens.size()-1; position++) {
-            this.currentToken = tokens.get(position);
+        while (currentToken.getType() != TokenType.END_OF_FILE) {
             parseStatement();
+            System.out.println("Statement parsed");
         }
     }
 
@@ -30,100 +35,100 @@ public class Parser {
             parseVariable();
             System.out.println("Variable declaration parsed");
         } else if (currentToken.getType() == TokenType.SHOW) {
-            parseShow();
+            advance();
+            parseExpression();
             System.out.println("Show statement parsed");
         }
         else {
+            System.out.println(currentToken);
             throw new SyntaxException("Invalid statement: Must begin with a variable declaration or show");
         }
     }
 
 
-    private void parseShow() throws SyntaxException {
-        advance();
-        int original_pos = position;
-
-        if (!parseExpression()) {
-            this.position = original_pos;
-            this.currentToken = tokens.get(position);
-        } else if (!parseTerm()) {
-            this.position = original_pos;
-            this.currentToken = tokens.get(position);
-        } else if (!parseFactor()) {
-            this.position = original_pos;
-            this.currentToken = tokens.get(position);
-        } else {
-            throw new SyntaxException("Invalid statement");
-        }
-
-    }
-
-    private boolean parseExpression() throws SyntaxException {
-        parseTerm();
-        if (currentToken.getType() == TokenType.PLUS || currentToken.getType() == TokenType.MINUS) {
-            advance();
-        } else {
-            return false;
-        }
-        parseTerm();
-
-        return true;
-    }
-
-    private boolean parseTerm() throws SyntaxException {
-        parseFactor();
-        if (currentToken.getType() == TokenType.MULTIPLY || currentToken.getType() == TokenType.DIVIDE) {
-            advance();
-        } else {
-            return false;
-        }
-        parseFactor();
-
-        return true;
-    }
-
-    private boolean parseFactor() throws SyntaxException {
-        if (currentToken.getType() == TokenType.NUMBER || currentToken.getType() == TokenType.LET) {
-            advance();
-        } else if (currentToken.getType() == TokenType.MINUS && tokens.get(position+1).getType() == TokenType.NUMBER) {
-            advance(); advance();
-        }else if (currentToken.getType() == TokenType.LEFT_PARENTHESIS) {
-            advance();
-            parseExpression();
-            if (currentToken.getType() == TokenType.RIGHT_PARENTHESIS) {
-                advance();
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-        return true;
-    }
-
     private void parseVariable() throws SyntaxException {
         boolean valid_var_name = Character.isLetter(currentToken.getValue().charAt(0));
-        Token next_equals_token = tokens.get(tokens.indexOf(currentToken) + 1);
+        Token next_equals_token = tokens.get(position + 1);
         boolean next_equals_opr = next_equals_token.getType() == TokenType.EQUALS_OPERATOR;
 
         if (valid_var_name && next_equals_opr) {
+            SyntaxTreeNode variable = new SyntaxTreeNode(currentToken);
             SyntaxTreeNode equals_opr = new SyntaxTreeNode(next_equals_token);
             if (treeRoot == null) {
-                  this.treeRoot = equals_opr;
-              } else {
-                  this.treeRoot.addChild(equals_opr);
-              }
-            equals_opr.addChild(new SyntaxTreeNode(currentToken));
+                this.treeRoot = variable;
+            } else {
+                this.treeRoot.addChild(variable);
+            }
+            variable.addChild(equals_opr);
 
             advance(); advance();
-            parseShow();
+            parseExpression();
+            equals_opr.addChild(treeRoot);
+            treeRoot = variable;
         } else {
             throw new SyntaxException("Invalid variable");
         }
     }
 
-    private void advance() {
-        this.position++;
-        this.currentToken = tokens.get(position);
+    private void parseExpression() throws SyntaxException {
+        parseTerm();
+        while (currentToken.getType() == TokenType.PLUS || currentToken.getType() == TokenType.MINUS) {
+            SyntaxTreeNode operation = new SyntaxTreeNode(currentToken);
+            if (treeRoot == null) {
+                this.treeRoot = operation;
+            } else {
+                this.treeRoot.addChild(operation);
+            }
+            advance();
+            parseTerm();
+            operation.addChild(treeRoot);
+            treeRoot = operation;
+        }
+    }
+
+    private void parseTerm() throws SyntaxException {
+        parseFactor();
+
+        while (currentToken.getType() == TokenType.MULTIPLY || currentToken.getType() == TokenType.DIVIDE) {
+            SyntaxTreeNode operation = new SyntaxTreeNode(currentToken);
+            if (treeRoot == null) {
+                this.treeRoot = operation;
+            } else {
+                this.treeRoot.addChild(operation);
+            }
+            advance();
+            parseFactor();
+            operation.addChild(treeRoot);
+            treeRoot = operation;
+        }
+    }
+
+    private void parseFactor() throws SyntaxException {
+        if (currentToken.getType() == TokenType.NUMBER) {
+            SyntaxTreeNode number = new SyntaxTreeNode(currentToken);
+            if (treeRoot == null) {
+                this.treeRoot = number;
+            } else {
+                this.treeRoot.addChild(number);
+            }
+            advance();
+        } else if (currentToken.getType() == TokenType.LET) {
+            SyntaxTreeNode variable = new SyntaxTreeNode(currentToken);
+            if (treeRoot == null) {
+                this.treeRoot = variable;
+            } else {
+                this.treeRoot.addChild(variable);
+            }
+            advance();
+        } else if (currentToken.getType() == TokenType.LEFT_PARENTHESIS) {
+            advance();
+            parseExpression();
+            if (currentToken.getType() != TokenType.RIGHT_PARENTHESIS) {
+                throw new SyntaxException("Mismatched parentheses");
+            }
+            advance();
+        } else {
+            throw new SyntaxException("Invalid factor");
+        }
     }
 }
