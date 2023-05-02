@@ -1,4 +1,4 @@
-package SyntaxAnalyser.AST;
+package SyntaxAnalyser.SyntaxTree;
 
 import LexicalAnalyser.Token;
 

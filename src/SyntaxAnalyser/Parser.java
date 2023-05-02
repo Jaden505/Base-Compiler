@@ -2,7 +2,7 @@ package SyntaxAnalyser;
 
 import LexicalAnalyser.Token;
 import LexicalAnalyser.Token.TokenType;
-import SyntaxAnalyser.AST.SyntaxTreeNode;
+import SyntaxAnalyser.SyntaxTree.SyntaxTreeNode;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class Parser {
         this.currentToken = tokens.get(position);
     }
 
-    public SyntaxTreeNode buildAST() throws SyntaxException {
+    public SyntaxTreeNode buildTree() throws SyntaxException {
         parseProgram();
         return root;
     }
@@ -71,33 +71,36 @@ public class Parser {
     }
 
     private void parseExpression(SyntaxTreeNode parent) throws SyntaxException {
-        parseTerm(parent);
+        SyntaxTreeNode term = new SyntaxTreeNode(new Token(TokenType.TERM));
+        parent.addChild(term);
+        parseTerm(term);
+
         while (currentToken.getType() == TokenType.PLUS || currentToken.getType() == TokenType.MINUS) {
-            SyntaxTreeNode expr = new SyntaxTreeNode(currentToken);
-            parent.addChild(expr);
-
+            parent.addChild(new SyntaxTreeNode(currentToken));
             advance();
-            parseTerm(expr);
+
+            term = new SyntaxTreeNode(new Token(TokenType.TERM));
+            parent.addChild(term);
+            parseTerm(term);
         }
-
-
     }
 
     private void parseTerm(SyntaxTreeNode parent) throws SyntaxException {
         parseFactor(parent);
 
         while (currentToken.getType() == TokenType.MULTIPLY || currentToken.getType() == TokenType.DIVIDE) {
-            SyntaxTreeNode term = new SyntaxTreeNode(currentToken);
-            parent.addChild(term);
+            parent.addChild(new SyntaxTreeNode(currentToken));
 
             advance();
-            parseFactor(term);
+            parseFactor(parent);
         }
     }
 
     private void parseFactor(SyntaxTreeNode parent) throws SyntaxException {
+        SyntaxTreeNode op = new SyntaxTreeNode(new Token(TokenType.FACTOR));
+        parent.addChild(op);
         SyntaxTreeNode factor = new SyntaxTreeNode(currentToken);
-        parent.addChild(factor);
+        op.addChild(factor);
 
         if (currentToken.getType() == TokenType.NUMBER || currentToken.getType() == TokenType.VAR) {
             advance();
@@ -120,13 +123,13 @@ public class Parser {
         }
     }
 
-    public void printAST(SyntaxTreeNode node, int depth) {
+    public void printTree(SyntaxTreeNode node, int depth) {
         for (int i = 0; i < depth; i++) {
             System.out.print("  ");
         }
         System.out.println(node.getToken());
         for (SyntaxTreeNode child : node.getChildren()) {
-            printAST(child, depth + 1);
+            printTree(child, depth + 1);
         }
     }
 }

@@ -15,7 +15,10 @@ public class Token {
         RIGHT_PARENTHESIS,
         END_OF_FILE,
         PROGRAM,
-        STATEMENT
+        STATEMENT,
+        EXPRESSION,
+        TERM,
+        FACTOR,
     }
 
     private TokenType type;

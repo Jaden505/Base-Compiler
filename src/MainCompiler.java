@@ -2,7 +2,7 @@ import LexicalAnalyser.Token;
 import LexicalAnalyser.Tokenizer;
 import LexicalAnalyser.TokenizerException;
 import SemanticAnalyser.SemanticAnalyser;
-import SyntaxAnalyser.AST.SyntaxTreeNode;
+import SyntaxAnalyser.SyntaxTree.SyntaxTreeNode;
 import SyntaxAnalyser.Parser;
 import SyntaxAnalyser.SyntaxException;
 
@@ -19,8 +19,8 @@ public class MainCompiler {
         System.out.println(tokens.toString());
 
         Parser parser = new Parser(tokens);
-        SyntaxTreeNode root = parser.buildAST();
-        parser.printAST(root, 0);
+        SyntaxTreeNode root = parser.buildTree();
+        parser.printTree(root, 0);
 
         SemanticAnalyser semanticAnalyser = new SemanticAnalyser(tokens);
         semanticAnalyser.analyse();
