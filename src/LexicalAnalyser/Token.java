@@ -14,7 +14,8 @@ public class Token {
         LEFT_PARENTHESIS,
         RIGHT_PARENTHESIS,
         END_OF_FILE,
-        PROGRAM
+        PROGRAM,
+        STATEMENT
     }
 
     private TokenType type;
